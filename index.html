@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Own Server</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+        
+        .d1 {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        input,
+        button {
+            margin: 5px;
+            width: 150px;
+        }
+        
+        .con {
+            display: flex;
+        }
+        
+        .sec-2 {
+            width: 40%;
+            height: 400px;
+        }
+        
+        .sec1 {
+            width: 50%;
+        }
+        
+        .appen {
+            display: grid;
+            grid-template-columns: repeat(2, 40%);
+            gap: 1%;
+            justify-content: center;
+        }
+        
+        .appen div {
+            padding-left: 2px;
+            border: 1px solid gray;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Apna Server</h1>
+    <div class="con">
+        <div class="sec1">
+            <h2>Add Products</h2>
+            <div class="d1">
+                <input type="text" name="id" id="id" placeholder="id" />
+                <input type="text" name="id" id="name" placeholder="Name" />
+                <input type="number" name="price" id="price" placeholder="Price" />
+                <button onclick="addData()">Add Product</button>
+            </div>
+            <h2>Delete Products</h2>
+            <div class="d1">
+                <input type="text" name="id" id="pr_id" placeholder="id" />
+                <button onclick="deleteData()">Delete Product</button>
+            </div>
+            <h2>Update Products</h2>
+            <div class="d1">
+                <input type="text" name="id" id="up_id" placeholder="id" />
+                <input type="text" name="id" id="up_name" placeholder="Name" />
+                <input type="number" name="price" id="up_price" placeholder="Price" />
+                <button onclick="updateData()">Update Product</button>
+            </div>
+        </div>
+        <div class="sec-2">
+            <button onclick="getData()">Get Products</button>
+            <div class="appen"></div>
+        </div>
+    </div>
+</body>
+<script>
+    var sec2 = document.querySelector(".appen");
+    async function getData() {
+        let res = await fetch("http://localhost:3000/api/products");
+
+        let data = await res.json();
+        appendData(data);
+        console.log(data);
+    }
+
+    function appendData(items) {
+        items.forEach((pr) => {
+            let data_div = document.createElement("div");
+
+            let id = document.createElement("h3");
+            id.innerText = "Id:- " + pr.id;
+
+            let name = document.createElement("p");
+            name.innerText = "Name:- " + pr.name;
+
+            let price = document.createElement("p");
+            price.innerText = "Price:- " + pr.price;
+
+            data_div.append(id, name, price);
+
+            sec2.appendChild(data_div);
+
+        });
+    }
+    async function addData() {
+        let data = {
+            id: document.getElementById("id").value,
+            name: document.getElementById("name").value,
+            price: document.getElementById("price").value
+        };
+
+        try {
+            let res = await fetch("http://localhost:3000/api/products", {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            let d = await res.json();
+            console.log(d);
+        } catch (e) {
+            console.log('e', e);
+        }
+        //alert(`Product successfully added.`);
+    }
+
+    async function deleteData() {
+        let id = document.getElementById("pr_id").value;
+
+        let res = await fetch(`http://localhost:3000/api/products/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        //alert(`Id- ${id} Product successfully Deleted.`);
+    }
+    //Update Data.....
+
+    async function updateData() {
+        let id = document.getElementById("up_id").value;
+        let data = {
+            id: document.getElementById("id").value,
+            name: document.getElementById("up_name").value,
+            price: document.getElementById("up_price").value
+        };
+
+        let res = await fetch(`http://localhost:3000/api/products/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        //alert(`Id- ${id} Product successfully Updated.`);
+    }
+</script>
+
+</html>
